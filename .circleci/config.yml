@@ -253,6 +253,8 @@ jobs:
       - run-build-step:
           step-name: Build And Push Docker Images
           command: |
+            echo "************TEST************"
+            echo $(circleci tests glob "~/workspace/functional-test/src/test/groovy/**/*Spec.groovy")
             rundeck_docker_build
             rundeck_docker_push
       - run-build-step:
@@ -505,6 +507,7 @@ jobs:
 
   test-gradle-functional:
     <<: *job-defaults
+    parallelism: 2
     executor:
       name: machine-builder
       docker_layer_caching: true
@@ -533,7 +536,10 @@ jobs:
           command: |
             TEST_IMAGE=<< parameters.test-image >>
             GRADLE_TASK=<< parameters.gradle-task >>
-            rundeck_gradle_functional_tests
+            echo "************TEST************"
+            echo $(circleci tests glob "~/workspace/functional-test/src/test/groovy/**/*Spec.groovy")
+            TEST_CLASSES=$(circleci tests glob "~/workspace/functional-test/src/test/groovy/**/*Spec.groovy")
+            echo "$TEST_CLASSES" | circleci tests run --command="rundeck_gradle_functional_tests"
       - collect-gradle-tests
       - store_artifacts:
           path: ~/workspace/functional-test/build/test-results/images
