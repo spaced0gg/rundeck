@@ -247,20 +247,12 @@ jobs:
       - checkout
       - install-build-dependencies
       - restore-build-cache
-      - run:
-          command: |
-            echo "************TEST************"
-            echo $(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy")
-            TEST_CLASSES=$(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy")
-            echo "$TEST_CLASSES"
       - run-build-step:
           step-name: Build War
           command: rundeck_war_build
       - run-build-step:
           step-name: Build And Push Docker Images
           command: |
-            echo "************TEST************"
-            echo $(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy")
             rundeck_docker_build
             rundeck_docker_push
       - run-build-step:
@@ -542,10 +534,8 @@ jobs:
           command: |
             TEST_IMAGE=<< parameters.test-image >>
             GRADLE_TASK=<< parameters.gradle-task >>
-            echo "************TEST************"
-            echo $(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy")
             TEST_CLASSES=$(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy")
-            echo "$TEST_CLASSES" | circleci tests run --command="rundeck_gradle_functional_tests"
+            echo "$TEST_CLASSES" | circleci tests run --command="xargs rundeck_gradle_functional_tests"
       - collect-gradle-tests
       - store_artifacts:
           path: ~/workspace/functional-test/build/test-results/images
