@@ -534,8 +534,13 @@ jobs:
           command: |
             TEST_IMAGE=<< parameters.test-image >>
             GRADLE_TASK=<< parameters.gradle-task >>
-            TEST_CLASSES=$(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy" | circleci tests split)
-            ./gradlew :functional-test:${GRADLE_TASK} --tests "${TEST_CLASSES}" -Penvironment="${ENV}" ${GRADLE_BUILD_OPTS} --info
+            TEST_CLASSES=$(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy" \
+            | circleci tests split \
+            | sed 's@.*/@@' \
+            |  sed 's/\.[^.]*$//' \
+            | awk '{for (i=1; i<=NF; i++) print "--tests",$i}')
+            echo $TEST_CLASSES
+            rundeck_gradle_functional_tests
       - collect-gradle-tests
       - store_artifacts:
           path: ~/workspace/functional-test/build/test-results/images
