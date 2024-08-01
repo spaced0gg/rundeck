@@ -537,7 +537,7 @@ jobs:
             TEST_CLASSES=$(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy" \
             | circleci tests split \
             | sed 's@.*/@@' \
-            |  sed 's/\.[^.]*$//' \
+            | sed 's/\.[^.]*$//' \
             | awk '{for (i=1; i<=NF; i++) print "--tests",$i}')
             echo $TEST_CLASSES
             rundeck_gradle_functional_tests
