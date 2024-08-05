@@ -527,6 +527,7 @@ jobs:
         default: medium
     steps:
       - checkout
+      - install-build-dependencies
       - attach_workspace:
           at: ~/workspace
       - run-build-step:
@@ -542,9 +543,7 @@ jobs:
             | sed 's@.*/@@' \
             | sed 's/\.[^.]*$//' \
             | awk '{for (i=1; i<=NF; i++) print "--tests",$i}')
-            echo $TEST_CLASSES
             FINAL_TEST_STRING=$(echo $TEST_CLASSES | paste -sd' ' -)
-            echo $FINAL_TEST_STRING
             rundeck_gradle_functional_tests
       - collect-gradle-tests
       - store_artifacts:
