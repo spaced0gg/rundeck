@@ -505,12 +505,17 @@ jobs:
 
   test-gradle-functional:
     <<: *job-defaults
-    parallelism: 2
+    parallelism: << parameters.parallels >>
     executor:
       name: machine-builder
       docker_layer_caching: true
       resource_class: << parameters.resource_class >>
     parameters:
+      tests-package:
+        type: string
+      parallels:
+        type: integer
+        default: 1
       test-image:
         description: Test image tag
         default: "rundeck/testdeck"
@@ -534,7 +539,7 @@ jobs:
           command: |
             TEST_IMAGE=<< parameters.test-image >>
             GRADLE_TASK=<< parameters.gradle-task >>
-            TEST_CLASSES=$(circleci tests glob "functional-test/src/test/groovy/**/*Spec.groovy" \
+            TEST_CLASSES=$(circleci tests glob "<< parameters.tests-package>>" \
             | circleci tests split \
             | sed 's@.*/@@' \
             | sed 's/\.[^.]*$//' \
@@ -684,15 +689,21 @@ workflows:
       - test-gradle-functional:
           name: New Selenium Test
           gradle-task: seleniumCoreTest
+          parallels: 2
+          tests-package: "functional-test/src/test/groovy/org/rundeck/tests/functional/selenium/**/*Spec.groovy"
           <<: *require-build
           <<: *slack-defaults
       - test-gradle-functional:
           name: New API Test
           gradle-task: apiTest
+          parallels: 2
+          tests-package: "functional-test/src/test/groovy/org/rundeck/tests/functional/api/**/*Spec.groovy"
           <<: *require-build
           <<: *slack-defaults
       - test-gradle-functional:
           name: New Plugin Blocklist Test
           gradle-task: pluginBlocklistTest
+          parallels: 1
+          tests-package: "functional-test/src/test/groovy/org/rundeck/tests/functional/integration/**/*Spec.groovy"
           <<: *require-build
           <<: *slack-defaults
