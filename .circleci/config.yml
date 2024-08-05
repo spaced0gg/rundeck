@@ -538,9 +538,10 @@ jobs:
             | circleci tests split \
             | sed 's@.*/@@' \
             | sed 's/\.[^.]*$//' \
-            | awk '{for (i=1; i<=NF; i++) print "--tests",$i}') \
-            | paste -sd' ' -
+            | awk '{for (i=1; i<=NF; i++) print "--tests",$i}')
             echo $TEST_CLASSES
+            FINAL_TEST_STRING=$(echo $TEST_CLASSES | paste -sd' ' -)
+            echo $FINAL_TEST_STRING
             rundeck_gradle_functional_tests
       - collect-gradle-tests
       - store_artifacts:
